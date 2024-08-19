@@ -1,6 +1,6 @@
 # Mapeo KML Generator
 
-This project allows you to generate KML files from Mapeo data shared on WhatsApp. The generated KML files can be used in applications like Google Earth to visualize the data.
+This project allows you to generate KML files from Mapeo data shared on WhatsApp (or other applications). The generated KML files can be used in applications like Google Earth to visualize the data.
 
 ## Features
 

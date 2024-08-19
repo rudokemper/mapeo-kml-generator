@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,73 +10,83 @@
     <link rel="icon" href="./assets/favicon.ico">
 </head>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
-    padding: 0;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
 
-.container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
 
-h1 {
-    text-align: center;
-    color: #333;
-}
+    h1 {
+        text-align: center;
+        color: #333;
+    }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
 
-label {
-    margin-bottom: 5px;
-    font-weight: bold;
-}
+    label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
 
-textarea, input[type="file"] {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
+    textarea,
+    input[type="file"] {
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
 
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 4px;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-}
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
 
-.btn:hover {
-    background-color: #0056b3;
-}
+    .btn:hover {
+        background-color: #0056b3;
+    }
 
-#downloadLink {
-    margin-top: 20px;
-    background-color: rgb(156, 73, 156);
-}
+    #downloadLink {
+        margin-top: 20px;
+        background-color: rgb(156, 73, 156);
+    }
 
+    .github {
+        text-align: center;
+        margin-top: 20px;
+
+        .btn {
+            background-color: #616161;
+        }
+    }
 </style>
+
 <body>
     <div class="container">
         <img src="assets/mapeo.png" alt="Mapeo Logo" style="display: block; margin: 0 auto;">
-        <h1>Generate a KML file from Mapeo data shared on Whatsapp</h1>
+        <h1>Generate a KML file from Mapeo data shared on Whatsapp (or other)</h1>
         <form id="kmlForm" class="form-group">
-            <label for="message">WhatsApp Message:</label>
+            <label for="message">Message:</label>
             <textarea id="message" name="message" rows="8" cols="50" placeholder="Mapeo Alert — Threat
 Aug 19, 2024, 12:01 PM
 UTM 18S 320000 4300000
@@ -83,7 +94,7 @@ UTM 18S 320000 4300000
 Gold mining
 
 — Sent from Mapeo —" required></textarea>
-            <label for="image">Upload Image:</label>
+            <label for="image">Upload Image (optional):</label>
             <input type="file" id="image" name="image"><br><br>
 
             <button type="button" class="btn" onclick="generateKML()">Generate KML</button>
@@ -91,6 +102,12 @@ Gold mining
 
         <a id="downloadLink" class="btn" style="display:none;">Download KML</a>
     </div>
+    <div class="github">
+        <a href="https://github.com/rudokemper/mapeo-kml-generator" class="btn" target="_blank">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+    </div>
     <script src="script/kmlGenerator.js"></script>
 </body>
+
 </html>

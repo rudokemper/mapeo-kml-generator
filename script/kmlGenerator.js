@@ -42,13 +42,15 @@ function extractCategory(text, timestamp) {
 }
 
 function extractMetadata(text, utmData) {
-    const utmEndIndex = text.indexOf(utmData.northing.toString()) + utmData.northing.toString().length;
-    if (utmEndIndex !== -1) {
-      const metadata = text.substring(utmEndIndex).trim();
-      return metadata && metadata !== '' ? metadata : '';
-    }
-    return '';
+  const utmEndIndex =
+    text.indexOf(utmData.northing.toString()) +
+    utmData.northing.toString().length;
+  if (utmEndIndex !== -1) {
+    const metadata = text.substring(utmEndIndex).trim();
+    return metadata && metadata !== "" ? metadata : "";
   }
+  return "";
+}
 
 function normalizeMessage(message) {
   return message
@@ -112,7 +114,15 @@ function generateKML() {
     const reader = new FileReader();
     reader.onload = function (e) {
       const base64Image = e.target.result;
-      finishKML(lat, lng, base64Image, formattedDate, timestamp, category, metadata);
+      finishKML(
+        lat,
+        lng,
+        base64Image,
+        formattedDate,
+        timestamp,
+        category,
+        metadata
+      );
     };
     reader.readAsDataURL(image);
   } else {
