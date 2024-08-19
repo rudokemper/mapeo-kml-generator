@@ -188,6 +188,8 @@ function finishKML(
       ""
     );
     console.log("Generated KML content (no image):", kmlContentWithoutImage);
+  } else {
+    console.log("Generated KML content:", kmlContent);
   }
 
   const blob = new Blob([kmlContent], {
