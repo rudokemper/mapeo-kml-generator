@@ -1,6 +1,6 @@
-function parseUTMFromText(text) {
+function parseUTMFromText(location) {
   const utmRegex = /UTM (\d{1,2}[A-Z]) (\d{6,7}) (\d{7,8})/;
-  const match = text.match(utmRegex);
+  const match = location.match(utmRegex);
   if (match) {
     const zone = match[1];
     const easting = parseFloat(match[2]);
@@ -13,52 +13,50 @@ function parseUTMFromText(text) {
 }
 
 function extractTimestamp(text) {
-  // Format: Jun 12, 2024, 12:50 PM
+  // English and Spanish month names
+  // Add more languages if needed (to avoid using a library for this simple task)
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+  ].join("|");
+
+  const timestampRegex3 = new RegExp(`\\b\\d{1,2} (${monthNames})\\.?,? \\d{4} \\d{1,2}:\\d{2}\\b`, "i");
+
+  // Existing formats
   const timestampRegex1 = /\b\w+ \d{1,2}, \d{4}, \d{1,2}:\d{2} [APM]{2}\b/;
-  // Format: Monday, August 19, 2024 9:35:10 AM EDT
-  const timestampRegex2 =
-    /\b\w+,\s\w+ \d{1,2}, \d{4} \d{1,2}:\d{2}:\d{2} [APM]{2} \w{3}\b/;
+  const timestampRegex2 = /\b\w+,\s\w+ \d{1,2}, \d{4} \d{1,2}:\d{2}:\d{2} [APM]{2} \w{3}\b/;
 
   const match1 = text.match(timestampRegex1);
   const match2 = text.match(timestampRegex2);
+  const match3 = text.match(timestampRegex3);
 
   if (match1) return match1[0];
   if (match2) return match2[0];
+  if (match3) return match3[0];
   return "Unknown Date";
 }
 
-function extractCategory(text, timestamp) {
-  const categoryRegex = /Mapeo Alert — (.*?)(?=\bUTM|\b\w+ \d{1,2}, \d{4})/;
-  const match = text.match(categoryRegex);
-  if (match) {
-    let category = match[1].trim();
-    // Remove parts of the category that might mistakenly include the start of the date
-    if (timestamp && category.endsWith(timestamp.split(" ")[0])) {
-      category = category.replace(timestamp.split(" ")[0], "").trim();
-    }
-    return category;
-  }
-  return "Unknown Category";
-}
-
-function extractMetadata(text, utmData) {
-  const utmEndIndex =
-    text.indexOf(utmData.northing.toString()) +
-    utmData.northing.toString().length;
-  if (utmEndIndex !== -1) {
-    const metadata = text.substring(utmEndIndex).trim();
-    return metadata && metadata !== "" ? metadata : "";
-  }
-  return "";
-}
-
 function normalizeMessage(message) {
-  return message
-    .replace(/\s{2,}/g, " ")
-    .replace(/— Sent from Mapeo —/g, "")
-    .replace(/\s*\n\s*/g, "\n")
-    .replace(/\n/g, " ")
-    .trim();
+  const lines = message.trim().split('\n');
+  const lastLine = lines[lines.length - 1].trim();
+
+  if (/^—.*?—$/.test(lastLine)) {
+    lines.pop();
+  }
+
+  const [title, category] = lines[0].split("—").map(part => part.trim());
+
+  const messageObject = {
+    title: title || "Unknown Title",
+    category: category || "Unknown Category",
+    date: lines[1] || "Unknown Date",
+    location: lines[2] || "Unknown Location",
+    metadata: lines.slice(3).filter(line => line.trim() !== '')
+  };
+
+  return messageObject;
 }
 
 function utmToLatLng(zone, easting, northing) {
@@ -89,48 +87,43 @@ function formatDateForFilename(dateString) {
 }
 
 function generateKML() {
-  // Normalize the input message
   const rawMessage = document.getElementById("message").value;
-  const message = normalizeMessage(rawMessage);
-  console.log("Normalized message:", message);
+  const messageObject = normalizeMessage(rawMessage);
+  console.log("Normalized message:", messageObject);
 
-  // Extract UTM coordinates, timestamp, category, and metadata from the message
-  const utmData = parseUTMFromText(message);
-  const image = document.getElementById("image").files[0];
-
+  const utmData = parseUTMFromText(messageObject.location);
   if (!utmData) return;
 
   const { zone, easting, northing } = utmData;
   const { lat, lng } = utmToLatLng(zone, easting, northing);
 
-  const timestamp = extractTimestamp(message);
+  const timestamp = extractTimestamp(messageObject.date);
   const formattedDate = formatDateForFilename(timestamp);
 
-  const category = extractCategory(message, timestamp);
-  const metadata = extractMetadata(message, utmData);
-
-  // If an image is provided, convert it to a base64 string
+  const image = document.getElementById("image").files[0];
   if (image) {
     const reader = new FileReader();
     reader.onload = function (e) {
       const base64Image = e.target.result;
       finishKML(
+        messageObject.title,
         lat,
         lng,
         base64Image,
         formattedDate,
         timestamp,
-        category,
-        metadata
+        messageObject.category,
+        messageObject.metadata
       );
     };
     reader.readAsDataURL(image);
   } else {
-    finishKML(lat, lng, null, formattedDate, timestamp, category, metadata);
+    finishKML(messageObject.title, lat, lng, null, formattedDate, timestamp, messageObject.category, messageObject.metadata);
   }
 }
 
 function finishKML(
+  title,
   lat,
   lng,
   base64Image,
@@ -145,7 +138,7 @@ function finishKML(
         <kml xmlns="http://www.opengis.net/kml/2.2">
             <Document>
                 <Placemark>
-                    <name>Mapeo Alert — ${category}</name>
+                    <name>${title} — ${category}</name>
                     <description><![CDATA[`;
 
   if (base64Image) {
@@ -154,7 +147,7 @@ function finishKML(
 
   kmlContent += `Category: ${category}<br/>
                     Timestamp: ${timestamp}<br/>
-                    Mapeo Alert — Threat<br/>
+                    ${title} — ${category}<br/>
                     ]]></description>
                     <ExtendedData>
                         <Data name="Category">
@@ -164,9 +157,10 @@ function finishKML(
                             <value>${timestamp}</value>
                                                 </Data>`;
 
-  if (metadata) {
+  if (metadata && metadata.length > 0) {
+    const metadataContent = metadata.join('<br/>');
     kmlContent += `<Data name="Metadata">
-                            <value>${metadata}</value>
+                            <value>${metadataContent}</value>
                         </Data>`;
   }
 
