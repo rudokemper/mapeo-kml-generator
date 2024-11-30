@@ -13,7 +13,6 @@ This project allows you to generate KML files from Mapeo data shared on WhatsApp
 ## Tested formats
 
 ### Mapeo
-
 ```
 Mapeo Alert — Gold mining
 Aug 19, 2024, 12:01 PM
@@ -27,8 +26,12 @@ Alluvial
 — Sent from Mapeo —
 ```
 
-### CoMapeo
-
 ```
-Mapeo Alert — Gold mining Monday, August 19, 2024 9:35:10 AM EDT UTM 18S 320000 4300000
+Alerta de Mapeo — Amenaza  
+30 nov. 2024 08:49  
+UTM 18M 320000 4300000
+
+Mineria - 2 dragas.
+
+— Enviado desde Mapeo —
 ```
