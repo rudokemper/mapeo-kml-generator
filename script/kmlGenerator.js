@@ -86,7 +86,9 @@ function formatDateForFilename(dateString) {
   return `${month}.${day}.${year}`;
 }
 
-function generateKML() {
+let messages = [];
+
+function addToKML() {
   const rawMessage = document.getElementById("message").value;
   const messageObject = normalizeMessage(rawMessage);
   console.log("Normalized message:", messageObject);
@@ -105,93 +107,81 @@ function generateKML() {
     const reader = new FileReader();
     reader.onload = function (e) {
       const base64Image = e.target.result;
-      finishKML(
-        messageObject.title,
-        lat,
-        lng,
-        base64Image,
-        formattedDate,
-        timestamp,
-        messageObject.category,
-        messageObject.metadata
-      );
+      messages.push({ ...messageObject, lat, lng, base64Image, formattedDate, timestamp });
+      updateUI();
     };
     reader.readAsDataURL(image);
   } else {
-    finishKML(messageObject.title, lat, lng, null, formattedDate, timestamp, messageObject.category, messageObject.metadata);
+    messages.push({ ...messageObject, lat, lng, base64Image: null, formattedDate, timestamp });
+    updateUI();
   }
 }
 
-function finishKML(
-  title,
-  lat,
-  lng,
-  base64Image,
-  formattedDate,
-  timestamp,
-  category,
-  metadata
-) {
-  // Build the KML content with the image embedded in the <description> tag
+function updateUI() {
+  document.getElementById("message").value = '';
+  document.getElementById("image").value = '';
+
+  const downloadLabel = document.getElementById("downloadLabel");
+  downloadLabel.textContent = `Finalized KML output: ${messages.length} messages`;
+  downloadLabel.style.display = "block";
+
+  const link = document.getElementById("downloadLink");
+  link.style.display = "block";
+  link.textContent = "Download KML";
+}
+
+function downloadKML() {
   let kmlContent = `
-        <?xml version="1.0" encoding="UTF-8"?>
-        <kml xmlns="http://www.opengis.net/kml/2.2">
-            <Document>
-                <Placemark>
-                    <name>${title} — ${category}</name>
-                    <description><![CDATA[`;
+    <?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+      <Document>`;
 
-  if (base64Image) {
-    kmlContent += `<img src="${base64Image}" width="400"/><br/><br/>`;
-  }
+  messages.forEach(({ title, lat, lng, base64Image, formattedDate, timestamp, category, metadata }) => {
+    kmlContent += `
+      <Placemark>
+        <name>${title} — ${category}</name>
+        <description><![CDATA[`;
 
-  kmlContent += `Category: ${category}<br/>
-                    Timestamp: ${timestamp}<br/>
-                    ${title} — ${category}<br/>
-                    ]]></description>
-                    <ExtendedData>
-                        <Data name="Category">
-                            <value>${category}</value>
-                        </Data>
-                        <Data name="Timestamp">
-                            <value>${timestamp}</value>
-                                                </Data>`;
+    if (base64Image) {
+      kmlContent += `<img src="${base64Image}" width="400"/><br/><br/>`;
+    }
 
-  if (metadata && metadata.length > 0) {
-    const metadataContent = metadata.join('<br/>');
-    kmlContent += `<Data name="Metadata">
-                            <value>${metadataContent}</value>
-                        </Data>`;
-  }
+    kmlContent += `Category: ${category}<br/>
+        Timestamp: ${timestamp}<br/>
+        ${title} — ${category}<br/>
+        ]]></description>
+        <ExtendedData>
+          <Data name="Category">
+            <value>${category}</value>
+          </Data>
+          <Data name="Timestamp">
+            <value>${timestamp}</value>
+          </Data>`;
 
-  kmlContent += `</ExtendedData>
-                    <Point>
-                        <coordinates>${lng},${lat},0</coordinates>
-                    </Point>
-                </Placemark>
-            </Document>
-        </kml>`;
+    if (metadata && metadata.length > 0) {
+      const metadataContent = metadata.join('<br/>');
+      kmlContent += `<Data name="Metadata">
+            <value>${metadataContent}</value>
+          </Data>`;
+    }
 
-  // Remove unnecessary whitespace and format the KML content
+    kmlContent += `</ExtendedData>
+        <Point>
+          <coordinates>${lng},${lat},0</coordinates>
+        </Point>
+      </Placemark>`;
+  });
+
+  kmlContent += `
+      </Document>
+    </kml>`;
+
   kmlContent = kmlContent.replace(/\n\s+/g, "").replace(/>\s+</g, "><");
-
-  // Log KML content without the image
-  if (base64Image) {
-    let kmlContentWithoutImage = kmlContent.replace(
-      `<img src="${base64Image}" width="400"/><br/><br/>`,
-      ""
-    );
-    console.log("Generated KML content (no image):", kmlContentWithoutImage);
-  } else {
-    console.log("Generated KML content:", kmlContent);
-  }
 
   const blob = new Blob([kmlContent], {
     type: "application/vnd.google-earth.kml+xml",
   });
   const link = document.getElementById("downloadLink");
   link.href = URL.createObjectURL(blob);
-  link.download = `Mapeo Alert - ${category} - ${formattedDate}.kml`;
-  link.style.display = "block";
-  link.textContent = "Download KML";
+  link.download = "Mapeo data.kml";
 }

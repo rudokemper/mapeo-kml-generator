@@ -74,8 +74,19 @@
     }
 
     #downloadLink {
-        margin-top: 20px;
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 0.8rem;
+        color: #fff;
         background-color: rgb(156, 73, 156);
+        border-radius: 4px;
+        text-align: center;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    #downloadLink:hover {
+        background-color: rgb(130, 60, 130);
     }
 
     .github {
@@ -108,12 +119,11 @@ Gold mining
 
 — Sent from Mapeo —" required></textarea>
             <label for="image">Upload Image (optional):</label>
-            <input type="file" id="image" name="image"><br><br>
-
-            <button type="button" class="btn" onclick="generateKML()">Generate KML</button>
-        </form>
-
-        <a id="downloadLink" class="btn" style="display:none;">Download KML</a>
+            <input type="file" id="image" name="image">
+            <button type="button" class="btn" onclick="addToKML()">Add to KML</button>
+        </form><br>
+        <label id="downloadLabel" style="display: none;">Finalized KML output:</label>
+        <a id="downloadLink" class="btn" onclick="downloadKML()" style="display:none;">Download KML</a>
     </div>
     <div class="github">
         <a href="https://github.com/rudokemper/mapeo-kml-generator" class="btn" target="_blank">
