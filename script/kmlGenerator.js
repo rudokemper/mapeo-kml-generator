@@ -122,7 +122,7 @@ function updateUI() {
   document.getElementById("image").value = '';
 
   const downloadLabel = document.getElementById("downloadLabel");
-  downloadLabel.textContent = `Finalized KML output: ${messages.length} messages`;
+  downloadLabel.innerHTML = `Generated KML output: <span style="font-weight: normal">${messages.length} message${messages.length !== 1 ? 's' : ''}</span>`;
   downloadLabel.style.display = "block";
 
   const link = document.getElementById("downloadLink");

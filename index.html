@@ -11,7 +11,7 @@
 </head>
 <style>
     body {
-        font-family: Arial, sans-serif;
+        font-family: 'Roboto', sans-serif;
         background-color: #f4f4f4;
         color: #333;
         margin: 0;
@@ -31,12 +31,21 @@
     @media (max-width: 600px) {
          .container {
             margin-top: 15px;
+            padding: 15px;
         }
     }
 
     h1 {
         text-align: center;
         color: #333;
+        font-size: 1.8em; 
+    }
+
+    p {
+        text-align: center;
+        line-height: 1.6em;;
+        margin-bottom: 2em;
+        color: #555; 
     }
 
     .form-group {
@@ -54,7 +63,7 @@
         margin-bottom: 15px;
         padding: 10px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 4px;  
     }
 
     .btn {
@@ -108,7 +117,7 @@
     <div class="container">
         <img src="assets/mapeo.png" alt="Mapeo Logo" style="display: block; margin: 0 auto;">
         <h1>Mapeo KML Generator</h1>
-        <p><center>Generate a KML file from Mapeo data shared on Whatsapp (or other).</center></p>
+        <p>Generate a KML file from one or more Mapeo alert messages (which are observations that were shared via WhatsApp or a different messaging tool).</p>
         <form id="kmlForm" class="form-group">
             <label for="message">Message:</label>
             <textarea id="message" name="message" rows="8" cols="50" placeholder="Mapeo Alert — Threat
@@ -122,7 +131,7 @@ Gold mining
             <input type="file" id="image" name="image">
             <button type="button" class="btn" onclick="addToKML()">Add to KML</button>
         </form><br>
-        <label id="downloadLabel" style="display: none;">Finalized KML output:</label>
+        <label id="downloadLabel" style="display: none;"></label>
         <a id="downloadLink" class="btn" onclick="downloadKML()" style="display:none;">Download KML</a>
     </div>
     <div class="github">
